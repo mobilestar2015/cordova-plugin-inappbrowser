@@ -121,5 +121,6 @@
 @interface CDVInAppBrowserNavigationController : UINavigationController
 
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, strong) UIToolbar *statusbarBackgroundView;
 
 @end
