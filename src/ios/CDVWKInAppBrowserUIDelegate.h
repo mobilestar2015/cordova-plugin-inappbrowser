@@ -17,25 +17,16 @@
  under the License.
  */
 
-#import <Cordova/CDVPlugin.h>
-#import <Cordova/CDVInvokedUrlCommand.h>
+#import <WebKit/WebKit.h>
 
-@interface CDVInAppBrowser : CDVPlugin {}
+@interface CDVWKInAppBrowserUIDelegate : NSObject <WKUIDelegate>{
+    @private
+    UIViewController* _viewController;
+}
 
-@property (nonatomic, assign) BOOL wkwebviewavailable;
-@property (nonatomic, assign) BOOL usewkwebview;
+@property (nonatomic, copy) NSString* title;
 
-- (void)open:(CDVInvokedUrlCommand*)command;
-- (void)close:(CDVInvokedUrlCommand*)command;
-- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
-- (void)show:(CDVInvokedUrlCommand*)command;
-- (void)hide:(CDVInvokedUrlCommand*)command;
-
-@end
-
-@interface CDVInAppBrowserNavigationController : UINavigationController
-
-@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
-@property (nonatomic, strong) UIToolbar *statusbarBackgroundView;
+- (instancetype)initWithTitle:(NSString*)title;
+-(void) setViewController:(UIViewController*) viewController;
 
 @end
