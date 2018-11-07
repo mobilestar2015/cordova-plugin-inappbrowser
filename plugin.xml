@@ -126,7 +126,7 @@
 
 
 	    <framework src="CoreGraphics.framework" />
-        <pod name="PopupBridge" git="https://github.com/braintree/popup-bridge-ios/PopupBridge.git">
+        <pod name="PopupBridge" git="https://github.com/braintree/popup-bridge-ios/PopupBridge.git"/>
 
         <header-file src="src/ios/AppDelegate+PopupBridge.h" />
         <source-file src="src/ios/AppDelegate+PopupBridge.m" />
