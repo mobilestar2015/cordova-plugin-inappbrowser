@@ -91,7 +91,7 @@
 
     <!-- ios -->
     <platform name="ios">
-        <pods-config ios-min-version="9.0" use-frameworks="true">
+        <pods-config ios-min-version="9.0" use-frameworks="true"/>
         <js-module src="www/inappbrowser.js" name="inappbrowser">
             <clobbers target="cordova.InAppBrowser.open" />
             <clobbers target="window.open" />
