@@ -1017,6 +1017,7 @@ BOOL isExiting = FALSE;
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
     }
     [self rePositionViews];
+    [self updateStatusbarBgColor];
     
     [super viewWillAppear:animated];
 }
@@ -1034,8 +1035,15 @@ BOOL isExiting = FALSE;
 
 - (void) rePositionViews {
     if ([_browserOptions.toolbarposition isEqualToString:kInAppBrowserToolbarBarPositionTop]) {
-        [self.webView setFrame:CGRectMake(self.webView.frame.origin.x, TOOLBAR_HEIGHT, self.webView.frame.size.width, self.webView.frame.size.height)];
+        [self.webView setFrame:CGRectMake(self.webView.frame.origin.x, TOOLBAR_HEIGHT + [self getStatusBarOffset], self.webView.frame.size.width, self.webView.frame.size.height)];
         [self.toolbar setFrame:CGRectMake(self.toolbar.frame.origin.x, [self getStatusBarOffset], self.toolbar.frame.size.width, self.toolbar.frame.size.height)];
+    }
+}
+
+- (void) updateStatusbarBgColor {
+    if (_browserOptions.toolbarcolor != nil) {
+        CDVInAppBrowserNavigationController* nav = (CDVInAppBrowserNavigationController*)self.navigationController;
+        nav.statusbarBackgroundView.barTintColor = [self colorFromHexString:_browserOptions.toolbarcolor];
     }
 }
 

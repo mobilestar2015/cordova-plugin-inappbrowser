@@ -81,8 +81,6 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import com.braintreepayments.popupbridge.PopupBridge;
-
 @SuppressLint("SetJavaScriptEnabled")
 public class InAppBrowser extends CordovaPlugin {
 
@@ -901,7 +899,6 @@ public class InAppBrowser extends CordovaPlugin {
 
                 // WebView
                 inAppWebView = new WebView(cordova.getActivity());
-                PopupBridge.newInstance(this, inAppWebView);
                 inAppWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 inAppWebView.setId(Integer.valueOf(6));
                 // File Chooser Implemented ChromeClient
