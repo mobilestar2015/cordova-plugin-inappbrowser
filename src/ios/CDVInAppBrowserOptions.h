@@ -23,6 +23,7 @@
 @property (nonatomic, assign) BOOL usewkwebview;
 @property (nonatomic, assign) BOOL location;
 @property (nonatomic, assign) BOOL toolbar;
+@property (nonatomic, assign) NSString* title;
 @property (nonatomic, copy) NSString* closebuttoncaption;
 @property (nonatomic, copy) NSString* closebuttoncolor;
 @property (nonatomic, copy) NSString* toolbarposition;

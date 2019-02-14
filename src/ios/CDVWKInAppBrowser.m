@@ -717,6 +717,13 @@ BOOL isExiting = FALSE;
     self.closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(close)];
     self.closeButton.enabled = YES;
     
+    self.toolbarTitle = [[UILabel alloc] initWithFrame:CGRectMake(50, 50, 150, 20)];
+    self.toolbarTitle.backgroundColor = [UIColor clearColor];
+    self.toolbarTitle.textColor = [UIColor whiteColor];
+    self.toolbarTitle.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:self.toolbarTitle];
+    UIBarButtonItem *titleField = [[UIBarButtonItem alloc] initWithCustomView:self.toolbarTitle];
+    
     UIBarButtonItem* flexibleSpaceButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     
     UIBarButtonItem* fixedSpaceButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
@@ -794,10 +801,12 @@ BOOL isExiting = FALSE;
 
     // Filter out Navigation Buttons if user requests so
     if (_browserOptions.hidenavigationbuttons) {
-      [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton]];
+      [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton, titleField, flexibleSpaceButton]];
     } else {
-      [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton, self.backButton, fixedSpaceButton, self.forwardButton]];
+      [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton, titleField, flexibleSpaceButton, self.backButton, fixedSpaceButton, self.forwardButton]];
     }
+    
+    [self.toolbarTitle setText:_browserOptions.title];
     
     self.view.backgroundColor = [UIColor grayColor];
     [self.view addSubview:self.toolbar];
