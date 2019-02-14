@@ -19,7 +19,6 @@
 package org.apache.cordova.inappbrowser;
 
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,8 +28,6 @@ import android.provider.Browser;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -111,8 +108,9 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String FOOTER = "footer";
     private static final String FOOTER_COLOR = "footercolor";
     private static final String BEFORELOAD = "beforeload";
+    private static final String TITLE = "title";
 
-    private static final List customizableOptions = Arrays.asList(CLOSE_BUTTON_CAPTION, TOOLBAR_COLOR, NAVIGATION_COLOR, CLOSE_BUTTON_COLOR, FOOTER_COLOR);
+    private static final List customizableOptions = Arrays.asList(CLOSE_BUTTON_CAPTION, TOOLBAR_COLOR, NAVIGATION_COLOR, CLOSE_BUTTON_COLOR, FOOTER_COLOR, TITLE);
 
     private InAppBrowserDialog dialog;
     private WebView inAppWebView;
@@ -132,6 +130,7 @@ public class InAppBrowser extends CordovaPlugin {
     private final static int FILECHOOSER_REQUESTCODE = 1;
     private final static int FILECHOOSER_REQUESTCODE_LOLLIPOP = 2;
     private String closeButtonCaption = "";
+    private String titleText = "";
     private String closeButtonColor = "";
     private int toolbarColor = android.graphics.Color.LTGRAY;
     private boolean hideNavigationButtons = false;
@@ -694,6 +693,10 @@ public class InAppBrowser extends CordovaPlugin {
             if (beforeload != null) {
                 useBeforeload = beforeload.equals("yes") ? true : false;
             }
+            String title = features.get(TITLE);
+            if (title != null) {
+                titleText = title;
+            }
         }
 
         final CordovaWebView thatWebView = this.webView;
@@ -759,6 +762,19 @@ public class InAppBrowser extends CordovaPlugin {
                 });
 
                 return _close;
+            }
+
+            private View createTitleView() {
+                TextView _titleView = new TextView(cordova.getActivity());
+                _titleView.setText(titleText);
+                _titleView.setTextSize(20);
+                _titleView.setTextColor(Color.WHITE);
+                _titleView.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                _titleView.setPadding(this.dpToPixels(10), 0, this.dpToPixels(10), 0);
+                RelativeLayout.LayoutParams titleViewLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+                titleViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                _titleView.setLayoutParams(titleViewLayoutParams);
+                return _titleView;
             }
 
             @SuppressLint("NewApi")
@@ -873,9 +889,14 @@ public class InAppBrowser extends CordovaPlugin {
                 });
 
 
+                // Header Title
+                View title = createTitleView();
+                toolbar.addView(title);
+
                 // Header Close/Done button
                 View close = createCloseButton(5);
                 toolbar.addView(close);
+
 
                 // Footer
                 RelativeLayout footer = new RelativeLayout(cordova.getActivity());
@@ -895,7 +916,6 @@ public class InAppBrowser extends CordovaPlugin {
 
                 View footerClose = createCloseButton(7);
                 footer.addView(footerClose);
-
 
                 // WebView
                 inAppWebView = new WebView(cordova.getActivity());
