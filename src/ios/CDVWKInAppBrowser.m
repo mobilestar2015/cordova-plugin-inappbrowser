@@ -735,7 +735,6 @@ BOOL isExiting = FALSE;
 - (void)createViews
 {
     // We create the views in code for primarily for ease of upgrades and not requiring an external .xib to be included
-    
     CGRect webViewBounds = self.view.bounds;
     BOOL toolbarIsAtBottom = ![_browserOptions.toolbarposition isEqualToString:kInAppBrowserToolbarBarPositionTop];
     webViewBounds.size.height -= _browserOptions.location ? FOOTER_HEIGHT : TOOLBAR_HEIGHT;
@@ -767,7 +766,7 @@ BOOL isExiting = FALSE;
     
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
-    
+    [self.view setBackgroundColor:UIColor.whiteColor];
     
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self.webViewUIDelegate;
@@ -905,7 +904,7 @@ BOOL isExiting = FALSE;
     
     [self.toolbarTitle setText:_browserOptions.title];
     
-    self.view.backgroundColor = [UIColor grayColor];
+//    self.view.backgroundColor = [UIColor grayColor];
     [self.view addSubview:self.toolbar];
     [self.view addSubview:self.addressLabel];
     [self.view addSubview:self.spinner];
@@ -1116,9 +1115,14 @@ BOOL isExiting = FALSE;
 {
     if (IsAtLeastiOSVersion(@"7.0") && !viewRenderedAtLeastOnce) {
         viewRenderedAtLeastOnce = TRUE;
+        CGFloat bottomPadding = 0.0;
+        if (@available(iOS 11.0, *)) {
+            UIWindow *window = UIApplication.sharedApplication.keyWindow;
+            bottomPadding = window.safeAreaInsets.bottom;
+        }
         CGRect viewBounds = [self.webView bounds];
         viewBounds.origin.y = STATUSBAR_HEIGHT;
-        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT;
+        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT - bottomPadding;
         self.webView.frame = viewBounds;
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
     }
