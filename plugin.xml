@@ -65,16 +65,6 @@
         <resource-file src="src/android/res/drawable-mdpi/ic_action_remove.png" target="res/drawable-mdpi/ic_action_remove.png" />
         <resource-file src="src/android/res/drawable-xhdpi/ic_action_remove.png" target="res/drawable-xhdpi/ic_action_remove.png" />
         <resource-file src="src/android/res/drawable-xxhdpi/ic_action_remove.png" target="res/drawable-xxhdpi/ic_action_remove.png" />
-
-        <!-- PopupBridge -->
-        <!-- <config-file target="config.xml" parent="/*">
-            <preference name="android-minSdkVersion" value="16" tools:overrideLibrary="com.braintreepayments.popupbridge" />
-        </config-file> -->
-
-        <!-- <framework src="com.braintreepayments:popup-bridge:1.+" />
-
-        <hook type="after_prepare" src="src/android/update_manifest.js" /> -->
-
     </platform>
 
     <!-- ios -->
@@ -113,24 +103,6 @@
 	    <source-file src="src/ios/CDVWKInAppBrowserUIDelegate.m" />
 
 	    <framework src="CoreGraphics.framework" />
-        <pod name="PopupBridge"/>
-
-        <header-file src="src/ios/AppDelegate+PopupBridge.h" />
-        <source-file src="src/ios/AppDelegate+PopupBridge.m" />
-        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
-            <array>
-                <dict>
-                    <key>CFBundleTypeRole</key>
-                    <string>Editor</string>
-                    <key>CFBundleURLName</key>
-                    <string></string>
-                    <key>CFBundleURLSchemes</key>
-                    <array>
-                        <string>$PACKAGE_NAME.popupbridge</string>
-                    </array>
-                </dict>
-            </array>
-        </config-file>
     </platform>
 
     <!-- osx -->
