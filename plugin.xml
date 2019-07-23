@@ -19,7 +19,7 @@
 -->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-           id="@mobilestar/cordova-plugin-inappbrowser"
+           id="cordova-plugin-inappbrowser"
       version="3.1.2">
 
     <name>InAppBrowser</name>
