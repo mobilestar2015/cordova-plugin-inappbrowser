@@ -1128,19 +1128,6 @@ BOOL isExiting = FALSE;
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    if (IsAtLeastiOSVersion(@"7.0") && !viewRenderedAtLeastOnce) {
-        viewRenderedAtLeastOnce = TRUE;
-        CGFloat bottomPadding = 0.0;
-        if (@available(iOS 11.0, *)) {
-            UIWindow *window = UIApplication.sharedApplication.keyWindow;
-            bottomPadding = window.safeAreaInsets.bottom;
-        }
-        CGRect viewBounds = [self.webView bounds];
-        viewBounds.origin.y = STATUSBAR_HEIGHT;
-        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT - bottomPadding;
-        self.webView.frame = viewBounds;
-        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
-    }
     [self rePositionViews];
     [self updateStatusbarBgColor];
 
