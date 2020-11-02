@@ -716,6 +716,7 @@ public class InAppBrowser extends CordovaPlugin {
             String title = features.get(TITLE);
             if (title != null) {
                 titleText = title;
+            }
             String fullscreenSet = features.get(FULLSCREEN);
             if (fullscreenSet != null) {
                 fullscreen = fullscreenSet.equals("yes") ? true : false;
