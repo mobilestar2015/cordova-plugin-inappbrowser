@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -61,6 +62,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.Config;
@@ -728,24 +731,23 @@ public class InAppBrowser extends CordovaPlugin {
              * @return int
              */
             private int dpToPixels(int dipValue) {
-                int value = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP,
-                        (float) dipValue,
-                        cordova.getActivity().getResources().getDisplayMetrics()
+                return (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    (float) dipValue,
+                    cordova.getActivity().getResources().getDisplayMetrics()
                 );
-
-                return value;
             }
 
             private View createCloseButton(int id) {
                 View _close;
                 Resources activityRes = cordova.getActivity().getResources();
 
-                if (closeButtonCaption != "") {
+                if (!closeButtonCaption.equals("")) {
                     // Use TextView for text
                     TextView close = new TextView(cordova.getActivity());
                     close.setText(closeButtonCaption);
                     close.setTextSize(20);
-                    if (closeButtonColor != "") close.setTextColor(android.graphics.Color.parseColor(closeButtonColor));
+                    if (!closeButtonColor.equals("")) close.setTextColor(android.graphics.Color.parseColor(closeButtonColor));
                     close.setGravity(android.view.Gravity.CENTER_VERTICAL);
                     close.setPadding(this.dpToPixels(10), 0, this.dpToPixels(10), 0);
                     _close = close;
@@ -753,8 +755,8 @@ public class InAppBrowser extends CordovaPlugin {
                 else {
                     ImageButton close = new ImageButton(cordova.getActivity());
                     int closeResId = activityRes.getIdentifier("ic_action_remove", "drawable", cordova.getActivity().getPackageName());
-                    Drawable closeIcon = activityRes.getDrawable(closeResId);
-                    if (closeButtonColor != "") close.setColorFilter(android.graphics.Color.parseColor(closeButtonColor));
+                    Drawable closeIcon = ResourcesCompat.getDrawable(activityRes, closeResId, null);
+                    if (!closeButtonColor.equals("")) close.setColorFilter(android.graphics.Color.parseColor(closeButtonColor));
                     close.setImageDrawable(closeIcon);
                     close.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     close.getAdjustViewBounds();
@@ -769,7 +771,7 @@ public class InAppBrowser extends CordovaPlugin {
                 _close.setBackground(null);
 
                 _close.setContentDescription("Close Button");
-                _close.setId(Integer.valueOf(id));
+                _close.setId(id);
                 _close.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         closeDialog();
@@ -779,15 +781,23 @@ public class InAppBrowser extends CordovaPlugin {
                 return _close;
             }
 
-            private View createTitleView() {
+            private View createTitleView(View closeButtonView) {
                 TextView _titleView = new TextView(cordova.getActivity());
                 _titleView.setText(titleText);
                 _titleView.setTextSize(20);
+                _titleView.setEllipsize(TextUtils.TruncateAt.END);
+                _titleView.setLines(1);
                 _titleView.setTextColor(Color.WHITE);
                 _titleView.setGravity(android.view.Gravity.CENTER_VERTICAL);
                 _titleView.setPadding(this.dpToPixels(10), 0, this.dpToPixels(10), 0);
                 RelativeLayout.LayoutParams titleViewLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-                titleViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                if (leftToRight) {
+                    titleViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                    titleViewLayoutParams.addRule(RelativeLayout.END_OF, closeButtonView.getId());
+                } else {
+                    titleViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    titleViewLayoutParams.addRule(RelativeLayout.START_OF, closeButtonView.getId());
+                }
                 _titleView.setLayoutParams(titleViewLayoutParams);
                 return _titleView;
             }
@@ -905,16 +915,16 @@ public class InAppBrowser extends CordovaPlugin {
                     }
                 });
 
-
-                // Header Title
-                View title = createTitleView();
-                toolbar.addView(title);
-
                 // Header Close/Done button
                 int closeButtonId = leftToRight ? 1 : 5;
                 View close = createCloseButton(closeButtonId);
                 toolbar.addView(close);
 
+                // Header Title
+                if (hideNavigationButtons && hideUrlBar) {
+                    View title = createTitleView(close);
+                    toolbar.addView(title);
+                }
 
                 // Footer
                 RelativeLayout footer = new RelativeLayout(cordova.getActivity());
