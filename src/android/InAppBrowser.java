@@ -20,20 +20,22 @@ package org.apache.cordova.inappbrowser;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Parcelable;
-import android.provider.Browser;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.graphics.Color;
-import android.net.http.SslError;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Parcelable;
+import android.provider.Browser;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -46,9 +48,12 @@ import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.HttpAuthHandler;
 import android.webkit.JavascriptInterface;
+import android.webkit.MimeTypeMap;
 import android.webkit.SslErrorHandler;
+import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -62,9 +67,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.Config;
 import org.apache.cordova.CordovaArgs;
@@ -77,14 +86,16 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import static android.content.Context.DOWNLOAD_SERVICE;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class InAppBrowser extends CordovaPlugin {
@@ -731,11 +742,12 @@ public class InAppBrowser extends CordovaPlugin {
              * @return int
              */
             private int dpToPixels(int dipValue) {
-                return (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    (float) dipValue,
-                    cordova.getActivity().getResources().getDisplayMetrics()
+                int value = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP,
+                        (float) dipValue,
+                        cordova.getActivity().getResources().getDisplayMetrics()
                 );
+
+                return value;
             }
 
             private View createCloseButton(int id) {
@@ -1034,6 +1046,51 @@ public class InAppBrowser extends CordovaPlugin {
                 inAppWebView.getSettings().setSupportMultipleWindows(true);
                 inAppWebView.requestFocus();
                 inAppWebView.requestFocusFromTouch();
+
+                // handle downloading
+                inAppWebView.setDownloadListener(new DownloadListener() {
+                    @Override
+                    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+                        try {
+                            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                            String cookies = CookieManager.getInstance().getCookie(url);
+                            request.addRequestHeader("cookie", cookies);
+                            request.addRequestHeader("User-Agent", userAgent);
+                            request.setDescription("Downloading file");
+                            String fileName = URLUtil.guessFileName(url, contentDisposition, null);
+                            String correctMimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(fileName));
+                            if (correctMimeType != null) {
+                                request.setMimeType(correctMimeType);
+                            } else {
+                                request.setMimeType(mimeType);
+                            }
+                            request.setTitle(fileName);
+                            request.allowScanningByMediaScanner();
+                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                            DownloadManager dm = (DownloadManager) cordova.getActivity().getSystemService(DOWNLOAD_SERVICE);
+                            dm.enqueue(request);
+                            Toast.makeText(cordova.getContext(), "Downloading File", Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+
+                            if (ContextCompat.checkSelfPermission(cordova.getActivity(),
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                                // Should we show an explanation?
+                                if (ActivityCompat.shouldShowRequestPermissionRationale(cordova.getActivity(),
+                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                    Toast.makeText(cordova.getContext(), "Need to confirm to download file", Toast.LENGTH_LONG).show();
+                                    ActivityCompat.requestPermissions(cordova.getActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        110);
+                                } else {
+                                    Toast.makeText(cordova.getContext(), "Need to confirm to download file", Toast.LENGTH_LONG).show();
+                                    ActivityCompat.requestPermissions(cordova.getActivity(), new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        110);
+                                }
+                            }
+                        }
+                    }
+                });
 
                 // Add the back and forward buttons to our action button container layout
                 actionButtonContainer.addView(back);
